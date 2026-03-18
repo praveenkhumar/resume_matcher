@@ -123,6 +123,14 @@ def extract_skills(text, method='keyword'):
     """
     Extract skills from text using specified method
     """
+    # Check if spaCy is broken (set by setup_models in production)
+    try:
+        import streamlit as st
+        if st.session_state.get('spacy_broken', False):
+            return extract_skills_keyword_matching(text)
+    except ImportError:
+        pass  # Not in Streamlit context
+
     if method == 'keyword':
         return extract_skills_keyword_matching(text)
     elif method == 'ner':

@@ -10,16 +10,7 @@ from utils.matcher import analyze_resume_job_match
 @st.cache_resource
 def setup_models():
     """Download required spaCy and NLTK data for production/cloud deployment."""
-    try:
-        import spacy
-        try:
-            spacy.load("en_core_web_sm")
-        except OSError:
-            st.info("⏳ Downloading spaCy language model (this happens once)...")
-            subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-    except Exception as e:
-        st.warning(f"Could not download spaCy model: {e}")
-
+    # Setup NLTK data first (more reliable)
     try:
         import nltk
         nltk.download('stopwords', quiet=True)
@@ -27,6 +18,37 @@ def setup_models():
         nltk.download('omw-1.4', quiet=True)
     except Exception as e:
         st.warning(f"Could not download NLTK data: {e}")
+
+    # Setup spaCy model with better error handling
+    try:
+        import spacy
+        # Try to load the model
+        try:
+            nlp = spacy.load("en_core_web_sm")
+            # Test that it works by processing a simple sentence
+            test_doc = nlp("test")
+            st.success("✅ spaCy model loaded successfully")
+        except (OSError, ImportError):
+            # Model not found, try to download it
+            st.info("⏳ Downloading spaCy language model (this happens once)...")
+            try:
+                subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"], timeout=300)
+                # Try loading again after download
+                nlp = spacy.load("en_core_web_sm")
+                test_doc = nlp("test")
+                st.success("✅ spaCy model downloaded and loaded successfully")
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as download_error:
+                st.error(f"❌ Failed to download spaCy model: {download_error}")
+                st.warning("⚠️ The app will work with keyword matching only (no NER)")
+        except Exception as spacy_error:
+            # spaCy has some internal error (like the REGEX issue)
+            st.warning(f"⚠️ spaCy model has compatibility issues: {spacy_error}")
+            st.info("🔄 Falling back to keyword matching only")
+            # Set a global flag to disable NER
+            st.session_state['spacy_broken'] = True
+    except ImportError:
+        st.warning("⚠️ spaCy not available. Using keyword matching only.")
+        st.session_state['spacy_broken'] = True
 
 # Run setup on app start
 setup_models()
@@ -49,10 +71,24 @@ This application helps you analyze how well your resume matches a job descriptio
 
 # Sidebar for configuration
 st.sidebar.header("Configuration")
+
+# Check if spaCy is broken and adjust options accordingly
+spacy_broken = st.session_state.get('spacy_broken', False)
+if spacy_broken:
+    st.sidebar.warning("⚠️ Advanced AI features disabled due to compatibility issues")
+    extraction_options = ["keyword"]
+    default_method = "keyword"
+    help_text = "Only keyword matching available (spaCy NER disabled)"
+else:
+    extraction_options = ["keyword", "ner"]
+    default_method = "keyword"
+    help_text = "Keyword: Uses predefined skill list. NER: Uses AI to detect skills."
+
 extraction_method = st.sidebar.selectbox(
     "Skill Extraction Method",
-    ["keyword", "ner"],
-    help="Keyword: Uses predefined skill list. NER: Uses AI to detect skills."
+    extraction_options,
+    index=extraction_options.index(default_method),
+    help=help_text
 )
 
 # Main content
