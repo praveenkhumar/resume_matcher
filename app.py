@@ -7,7 +7,6 @@ from utils.parser import extract_text
 from utils.matcher import analyze_resume_job_match
 
 # Ensure spaCy model and NLTK data are downloaded on app startup
-@st.cache_resource
 def setup_models():
     """Download required spaCy and NLTK data for production/cloud deployment."""
     # Setup NLTK data first (more reliable)
