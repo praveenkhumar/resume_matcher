@@ -1,0 +1,6 @@
+streamlit
+spacy
+pymupdf
+pdfplumber
+python-docx
+nltk
