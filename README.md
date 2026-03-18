@@ -101,17 +101,51 @@ resume_matcher/
 
 ## Deployment
 
-### Streamlit Cloud
+### Streamlit Cloud (Recommended)
 
-1. Push code to GitHub
-2. Connect to Streamlit Cloud
-3. Deploy automatically
+1. **Push to GitHub**
+
+   ```bash
+   git add .
+   git commit -m "your commit message"
+   git push origin main
+   ```
+
+2. **Deploy to Streamlit Cloud**
+   - Go to [streamlit.io/cloud](https://streamlit.io/cloud)
+   - Connect your GitHub repository
+   - Select the `main` branch and `app.py` as the main file
+   - Click "Deploy"
+
+3. **First Load Setup**
+   - On first load, the app will automatically download the spaCy model and NLTK data
+   - This may take 1-2 minutes on first deployment
+   - Subsequent loads will be fast (models are cached)
+
+4. **Important: Use Pinned Versions**
+   - The `requirements.txt` includes specific versions to ensure compatibility
+   - Don't remove version pins as they prevent dependency conflicts
 
 ### Local Deployment
 
 ```bash
 streamlit run app.py --server.port 8501 --server.address 0.0.0.0
 ```
+
+### Troubleshooting
+
+**"unable to infer type for attribute REGEX" error in production:**
+
+- This error occurs if spaCy model is not properly installed
+- The app automatically downloads the model on first load
+- Check Streamlit Cloud logs: **Manage app > Logs**
+- Solution: The app should auto-download on next load
+
+**Models not downloading in production:**
+
+- Ensure `requirements.txt` has the correct versions
+- Our setup runs `setup_models()` on app startup to download missing components
+- If still failing, you can pre-run: `python setup_models.py` before deployment
 
 ## Contributing
 

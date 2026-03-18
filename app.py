@@ -1,8 +1,35 @@
 import streamlit as st
 import tempfile
 import os
+import subprocess
+import sys
 from utils.parser import extract_text
 from utils.matcher import analyze_resume_job_match
+
+# Ensure spaCy model and NLTK data are downloaded on app startup
+@st.cache_resource
+def setup_models():
+    """Download required spaCy and NLTK data for production/cloud deployment."""
+    try:
+        import spacy
+        try:
+            spacy.load("en_core_web_sm")
+        except OSError:
+            st.info("⏳ Downloading spaCy language model (this happens once)...")
+            subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+    except Exception as e:
+        st.warning(f"Could not download spaCy model: {e}")
+
+    try:
+        import nltk
+        nltk.download('stopwords', quiet=True)
+        nltk.download('wordnet', quiet=True)
+        nltk.download('omw-1.4', quiet=True)
+    except Exception as e:
+        st.warning(f"Could not download NLTK data: {e}")
+
+# Run setup on app start
+setup_models()
 
 # Page configuration
 st.set_page_config(
@@ -87,79 +114,84 @@ if st.button("🔍 Analyze Match", type="primary", use_container_width=True):
                     job_description,
                     extraction_method=extraction_method
                 )
-
-                # Display results
-                st.header("📊 Analysis Results")
-
-                # Match Score
-                col_score, col_metrics = st.columns([1, 2])
-
-                with col_score:
-                    st.metric("Match Score", f"{results['match_score']}%")
-
-                    # Color coding for score
-                    if results['match_score'] >= 80:
-                        st.success("Excellent match! 🎉")
-                    elif results['match_score'] >= 60:
-                        st.warning("Good match, but room for improvement")
-                    else:
-                        st.error("Low match - consider skill development")
-
-                with col_metrics:
-                    st.metric("Resume Skills Found", len(results['resume_skills']))
-                    st.metric("Job Skills Required", len(results['job_skills']))
-                    st.metric("Skills Matched", len(results['matched_skills']))
-
-                # Skills breakdown
-                col1, col2, col3 = st.columns(3)
-
-                with col1:
-                    st.subheader("✅ Matched Skills")
-                    if results['matched_skills']:
-                        for skill in results['matched_skills']:
-                            st.success(f"✓ {skill}")
-                    else:
-                        st.info("No matching skills found")
-
-                with col2:
-                    st.subheader("❌ Missing Skills")
-                    if results['missing_skills']:
-                        for skill in results['missing_skills']:
-                            st.error(f"✗ {skill}")
-                    else:
-                        st.success("All required skills found!")
-
-                with col3:
-                    st.subheader("📋 All Resume Skills")
-                    if results['resume_skills']:
-                        for skill in results['resume_skills']:
-                            st.info(f"• {skill}")
-                    else:
-                        st.warning("No skills detected in resume")
-
-                # Job Description Skills
-                st.subheader("🎯 Job Description Skills")
-                if results['job_skills']:
-                    skill_cols = st.columns(min(4, len(results['job_skills'])))
-                    for i, skill in enumerate(results['job_skills']):
-                        col_idx = i % 4
-                        with skill_cols[col_idx]:
-                            if skill.lower() in [s.lower() for s in results['matched_skills']]:
-                                skill_cols[col_idx].success(f"✓ {skill}")
-                            else:
-                                skill_cols[col_idx].error(f"✗ {skill}")
-                else:
-                    st.warning("No skills detected in job description")
-
-                # Recommendations
-                if results['recommendations']:
-                    st.header("💡 Recommendations")
-                    for rec in results['recommendations']:
-                        st.info(rec)
-
             except Exception as e:
                 st.error(f"Error during analysis: {str(e)}")
                 st.info("Please check your inputs and try again.")
+                results = None
+
+            if results is not None:
+                try:
+                    # Display results
+                    st.header("📊 Analysis Results")
+
+                    # Match Score
+                    col_score, col_metrics = st.columns([1, 2])
+
+                    with col_score:
+                        st.metric("Match Score", f"{results['match_score']}%")
+
+                        # Color coding for score
+                        if results['match_score'] >= 80:
+                            st.success("Excellent match! 🎉")
+                        elif results['match_score'] >= 60:
+                            st.warning("Good match, but room for improvement")
+                        else:
+                            st.error("Low match - consider skill development")
+
+                    with col_metrics:
+                        st.metric("Resume Skills Found", len(results['resume_skills']))
+                        st.metric("Job Skills Required", len(results['job_skills']))
+                        st.metric("Skills Matched", len(results['matched_skills']))
+
+                    # Skills breakdown
+                    col1, col2, col3 = st.columns(3)
+
+                    with col1:
+                        st.subheader("✅ Matched Skills")
+                        if results['matched_skills']:
+                            for skill in results['matched_skills']:
+                                st.success(f"✓ {skill}")
+                        else:
+                            st.info("No matching skills found")
+
+                    with col2:
+                        st.subheader("❌ Missing Skills")
+                        if results['missing_skills']:
+                            for skill in results['missing_skills']:
+                                st.error(f"✗ {skill}")
+                        else:
+                            st.success("All required skills found!")
+
+                    with col3:
+                        st.subheader("📋 All Resume Skills")
+                        if results['resume_skills']:
+                            for skill in results['resume_skills']:
+                                st.info(f"• {skill}")
+                        else:
+                            st.warning("No skills detected in resume")
+
+                    # Job Description Skills
+                    st.subheader("🎯 Job Description Skills")
+                    if results['job_skills']:
+                        skill_cols = st.columns(min(4, len(results['job_skills'])))
+                        for i, skill in enumerate(results['job_skills']):
+                            col_idx = i % 4
+                            with skill_cols[col_idx]:
+                                if skill.lower() in [s.lower() for s in results['matched_skills']]:
+                                    skill_cols[col_idx].success(f"✓ {skill}")
+                                else:
+                                    skill_cols[col_idx].error(f"✗ {skill}")
+                    else:
+                        st.warning("No skills detected in job description")
+
+                    # Recommendations
+                    if results['recommendations']:
+                        st.header("💡 Recommendations")
+                        for rec in results['recommendations']:
+                            st.info(rec)
+                except Exception as e:
+                    st.error(f"Error during display: {str(e)}")
+                    st.info("Please check your inputs and try again.")
 
 # Footer
 st.markdown("---")

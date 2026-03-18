@@ -1,3 +1,5 @@
+import logging
+
 import spacy
 import re
 import json
@@ -5,6 +7,8 @@ import os
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import nltk
+
+logger = logging.getLogger(__name__)
 
 # Download required NLTK data
 try:
@@ -83,27 +87,37 @@ def extract_skills_keyword_matching(text):
 
 def extract_skills_ner(text):
     """
-    Extract skills using Named Entity Recognition (placeholder)
+    Extract skills using Named Entity Recognition (NER).
+
+    NOTE: spaCy NER can occasionally fail depending on the underlying model or
+    runtime environment (especially when pydantic/schema validation errors occur).
+    If NER fails, we fallback to keyword matching to keep the application working.
     """
     if not nlp:
-        return []
+        return extract_skills_keyword_matching(text)
 
-    doc = nlp(text)
+    try:
+        doc = nlp(text)
 
-    # This is a simplified NER approach
-    # In a real implementation, you might need custom NER training
-    skills = []
+        # This is a simplified NER approach
+        # In a real implementation, you might need custom NER training
+        skills = []
 
-    # Look for proper nouns that might be skills
-    for ent in doc.ents:
-        if ent.label_ in ['ORG', 'PRODUCT', 'GPE']:  # Organizations, Products, Geo-political entities
-            skills.append(ent.text.lower())
+        # Look for proper nouns that might be skills
+        for ent in doc.ents:
+            if ent.label_ in ['ORG', 'PRODUCT', 'GPE']:  # Organizations, Products, Geo-political entities
+                skills.append(ent.text.lower())
 
-    # Combine with keyword matching
-    keyword_skills = extract_skills_keyword_matching(text)
-    skills.extend(keyword_skills)
+        # Combine with keyword matching
+        keyword_skills = extract_skills_keyword_matching(text)
+        skills.extend(keyword_skills)
 
-    return list(set(skills))
+        return list(set(skills))
+    except Exception as e:
+        # If NER fails for any reason (e.g., spaCy/pydantic runtime issue), fallback
+        # to keyword matching so the app still provides useful output.
+        logger.warning("NER skill extraction failed, falling back to keyword matching: %s", e)
+        return extract_skills_keyword_matching(text)
 
 def extract_skills(text, method='keyword'):
     """
