@@ -24,8 +24,7 @@ except LookupError:
 # Load spaCy model
 try:
     nlp = spacy.load("en_core_web_sm")
-except OSError:
-    print("spaCy model 'en_core_web_sm' not found. Please run: python -m spacy download en_core_web_sm")
+except Exception:
     nlp = None
 
 # Load skills list
@@ -89,8 +88,7 @@ def extract_skills_ner(text):
     """
     Extract skills using Named Entity Recognition (NER).
 
-    NOTE: spaCy NER can occasionally fail depending on the underlying model or
-    runtime environment (especially when pydantic/schema validation errors occur).
+    NOTE: spaCy can fail due to compatibility issues (especially with Python 3.14+).
     If NER fails, we fallback to keyword matching to keep the application working.
     """
     if not nlp:

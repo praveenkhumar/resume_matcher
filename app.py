@@ -21,7 +21,10 @@ def setup_models():
 
     # Setup spaCy model with better error handling
     try:
+        # First, try to import spacy - this may fail with Python 3.14+ due to Pydantic V1 issues
         import spacy
+        st.info("🔄 Checking spaCy compatibility...")
+
         # Try to load the model
         try:
             nlp = spacy.load("en_core_web_sm")
@@ -40,14 +43,21 @@ def setup_models():
             except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as download_error:
                 st.error(f"❌ Failed to download spaCy model: {download_error}")
                 st.warning("⚠️ The app will work with keyword matching only (no NER)")
+                st.session_state['spacy_broken'] = True
         except Exception as spacy_error:
-            # spaCy has some internal error (like the REGEX issue)
-            st.warning(f"⚠️ spaCy model has compatibility issues: {spacy_error}")
-            st.info("🔄 Falling back to keyword matching only")
-            # Set a global flag to disable NER
+            # spaCy has some internal error (like the REGEX issue with Python 3.14+)
+            st.warning(f"⚠️ spaCy has compatibility issues with this Python version: {spacy_error}")
+            st.info("🔄 Using keyword matching only (spaCy NER disabled)")
             st.session_state['spacy_broken'] = True
-    except ImportError:
-        st.warning("⚠️ spaCy not available. Using keyword matching only.")
+    except ImportError as import_error:
+        # spaCy import failed entirely (likely Pydantic V1 compatibility issue)
+        st.warning(f"⚠️ spaCy import failed (likely Python 3.14+ compatibility issue): {import_error}")
+        st.info("🔄 App will use keyword matching only")
+        st.session_state['spacy_broken'] = True
+    except Exception as general_error:
+        # Catch any other unexpected errors during spaCy setup
+        st.warning(f"⚠️ Unexpected error setting up spaCy: {general_error}")
+        st.info("🔄 Falling back to keyword matching")
         st.session_state['spacy_broken'] = True
 
 # Run setup on app start
