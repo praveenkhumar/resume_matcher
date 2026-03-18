@@ -51,11 +51,12 @@ resume_matcher/
    ```
 
 4. **Download NLTK data** (if not already downloaded)
+
    ```bash
    python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet')"
    ```
 
-   *Note: Stanza models are downloaded automatically on first run*
+   _Note: Stanza models are downloaded automatically on first run_
 
 ## Usage
 
