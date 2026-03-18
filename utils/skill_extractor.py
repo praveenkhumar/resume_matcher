@@ -1,6 +1,5 @@
 import logging
 
-import spacy
 import re
 import json
 import os
@@ -21,11 +20,16 @@ try:
 except LookupError:
     nltk.download('wordnet')
 
-# Load spaCy model
+# Try to load Stanza model (better alternative to spaCy)
 try:
-    nlp = spacy.load("en_core_web_sm")
-except Exception:
+    import stanza
+    stanza.download('en', verbose=False)
+    nlp = stanza.Pipeline('en', verbose=False)
+    STANZA_AVAILABLE = True
+except Exception as e:
+    logger.warning("Stanza NLP library not available, falling back to keyword matching: %s", e)
     nlp = None
+    STANZA_AVAILABLE = False
 
 # Load skills list
 SKILLS_FILE = os.path.join(os.path.dirname(__file__), '..', 'data', 'skills_list.json')
@@ -86,34 +90,35 @@ def extract_skills_keyword_matching(text):
 
 def extract_skills_ner(text):
     """
-    Extract skills using Named Entity Recognition (NER).
+    Extract skills using Named Entity Recognition (NER) with Stanza.
 
-    NOTE: spaCy can fail due to compatibility issues (especially with Python 3.14+).
+    NOTE: Stanza provides excellent NER capabilities and is compatible with Python 3.14+.
     If NER fails, we fallback to keyword matching to keep the application working.
     """
-    if not nlp:
+    if not STANZA_AVAILABLE or not nlp:
         return extract_skills_keyword_matching(text)
 
     try:
         doc = nlp(text)
 
-        # This is a simplified NER approach
-        # In a real implementation, you might need custom NER training
+        # Stanza provides better NER than basic spaCy
         skills = []
 
-        # Look for proper nouns that might be skills
-        for ent in doc.ents:
-            if ent.label_ in ['ORG', 'PRODUCT', 'GPE']:  # Organizations, Products, Geo-political entities
-                skills.append(ent.text.lower())
+        # Look for entities that might be skills
+        for ent in doc.entities:
+            if ent.type in ['ORG', 'PRODUCT', 'GPE', 'PERSON', 'WORK_OF_ART', 'EVENT']:
+                # Clean and add the entity
+                entity_text = ent.text.lower().strip()
+                if len(entity_text) > 1:  # Avoid single characters
+                    skills.append(entity_text)
 
-        # Combine with keyword matching
+        # Combine with keyword matching for comprehensive coverage
         keyword_skills = extract_skills_keyword_matching(text)
         skills.extend(keyword_skills)
 
         return list(set(skills))
     except Exception as e:
-        # If NER fails for any reason (e.g., spaCy/pydantic runtime issue), fallback
-        # to keyword matching so the app still provides useful output.
+        # If NER fails for any reason, fallback to keyword matching
         logger.warning("NER skill extraction failed, falling back to keyword matching: %s", e)
         return extract_skills_keyword_matching(text)
 
@@ -121,10 +126,10 @@ def extract_skills(text, method='keyword'):
     """
     Extract skills from text using specified method
     """
-    # Check if spaCy is broken (set by setup_models in production)
+    # Check if NLP library is broken (set by setup_models in production)
     try:
         import streamlit as st
-        if st.session_state.get('spacy_broken', False):
+        if st.session_state.get('nlp_broken', False):
             return extract_skills_keyword_matching(text)
     except ImportError:
         pass  # Not in Streamlit context

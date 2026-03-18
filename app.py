@@ -18,21 +18,23 @@ def setup_models():
     except Exception as e:
         st.warning(f"Could not download NLTK data: {e}")
 
-    # Setup spaCy model with better error handling
+    # Setup Stanza NLP model with better error handling
     try:
-        import spacy
-        st.info("🔄 Checking spaCy compatibility...")
+        import stanza
+        st.info("🔄 Setting up Stanza NLP library...")
         
-        # Try to load the model
-        nlp = spacy.load("en_core_web_sm")
-        # Test that it works by processing a simple sentence
-        test_doc = nlp("test")
-        st.success("✅ spaCy model loaded successfully")
+        # Download and initialize Stanza
+        stanza.download('en', verbose=False)
+        nlp = stanza.Pipeline('en', verbose=False)
+        
+        # Test that it works
+        test_doc = nlp("test sentence")
+        st.success("✅ Stanza NLP library loaded successfully")
     except Exception as e:
-        # Any spaCy related error (import, load, compatibility)
-        st.warning(f"⚠️ spaCy setup failed: {e}")
-        st.info("🔄 Using keyword matching only (spaCy NER disabled)")
-        st.session_state['spacy_broken'] = True
+        # Any NLP library related error
+        st.warning(f"⚠️ Stanza NLP setup failed: {e}")
+        st.info("🔄 Using keyword matching only (NER disabled)")
+        st.session_state['nlp_broken'] = True
 
 # Run setup on app start
 setup_models()
