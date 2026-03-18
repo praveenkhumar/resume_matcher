@@ -1,0 +1,19 @@
+[client]
+showErrorDetails = true
+toolbarMode = "minimal"
+
+[server]
+maxUploadSize = 200
+enableXsrfProtection = true
+enableCORS = false
+enableWebsocketCompression = true
+
+[logger]
+level = "info"
+
+[theme]
+primaryColor = "#FF5733"
+backgroundColor = "#0E1117"
+secondaryBackgroundColor = "#262730"
+textColor = "#FAFAFA"
+font = "sans serif"

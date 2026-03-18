@@ -1,0 +1,148 @@
+Position: Permanent 
+
+Role: Project Manager – Mendix ( Unit Test Automation) 
+
+Experience: 10 – 12Years 
+
+Location: Chennai/Bangalore 
+
+Work Mode: Hybrid 
+
+Shift: 2 PM – 11 PM 
+
+Domain: Insurance & Investment Banking 
+
+ 
+Key Skills: Python, Full Stack, Mendix, Testing
+ 
+About the Company 
+
+Movate, formerly called CSS CORP, is a new age services company that harnesses the power of digital 
+
+technologies to reimagine customer engagements. 
+
+We enable businesses to anticipate and face disruptions effectively through our digital, technology and support 
+
+services. 
+
+We are a global customer experience and technology consulting services provider and a digital transformation 
+
+partner of choice for its clients, which include the world’s top innovators across industries, from mid-market 
+
+players to large enterprises. We have a diverse team of over 11,500 customer-centric thinkers, collaborators, 
+
+and co-creators across 20 global locations. 
+
+About the Role 
+
+We are looking for a technically strong Project Manager with expertise in Mendix and Unit Test Automation. The 
+
+ideal candidate will manage end-to-end project delivery while ensuring implementation of automated testing 
+
+frameworks within the Mendix platform. 
+
+The role requires a strong understanding of low-code development, CI/CD pipelines, automated testing 
+
+strategies, and financial domain processes within Insurance and Investment Banking environments. The 
+
+candidate will collaborate with business and technology teams to deliver scalable, compliant, and highquality 
+
+solutions. 
+
+Roles & Responsibilities: 
+
+• Strong experience with Mendix architecture and development lifecycle 
+
+• Hands-on experience with Unit Test Automation in Mendix 
+
+• Implementation of Mendix Unit Testing Module 
+
+• Knowledge of Microflow and Nanoflow unit testing 
+
+• Experience integrating CI/CD pipelines (Azure DevOps / Jenkins / Git) 
+
+• Test automation strategy including regression automation and code quality gates 
+
+• Experience with test coverage metrics and defect tracking tools (JIRA, Azure Boards) 
+
+• Agile project management and Scrum methodology 
+
+Good To Have 
+
+• Knowledge of TDD / BDD practices 
+
+• Experience implementing DevOps automation frameworks 
+
+• Familiarity with code quality tools and automated testing frameworks 
+
+• Certifications such as PMP / PRINCE2 / Agile 
+
+• Experience in regulated financial environments 
+
+Project Delivery & Governance 
+
+• Define project scope, timelines, resource planning, and cost estimates. 
+
+• Manage Agile/Scrum ceremonies including sprint planning, reviews, and retrospectives. 
+
+• Track project KPIs such as velocity, defect leakage, test coverage, and release stability. 
+
+• Manage risks, issues, dependencies, and change requests. 
+
+• Conduct governance meetings and Steering Committee updates. 
+
+Automation & Quality Assurance 
+
+• Drive implementation of automated unit testing frameworks in Mendix. 
+
+• Ensure high test coverage through Mendix Unit Testing Module integration. 
+
+• Define testing strategy including: 
+
+• Microflow & Nanoflow unit testing 
+
+• Regression automation 
+
+• Code quality gates 
+
+• Integrate automated testing into DevOps pipelines. 
+
+Domain Delivery 
+
+• Manage digital transformation initiatives in: 
+
+• Policy Administration 
+
+• Claims Processing 
+
+Stakeholder Management 
+
+• Collaborate with business stakeholders including Underwriters, Traders, Risk, Compliance, and 
+
+Operations teams. 
+
+• Act as the primary interface between business and technical teams. 
+
+• Ensure proper documentation including BRD, FSD, Test Strategy, and Release Notes. 
+
+Production & Compliance 
+
+• Ensure production release readiness and rollback strategies. 
+
+• Conduct root cause analysis for production defects. 
+
+• Maintain audit trails and compliance documentation. 
+
+• Implement quality assurance frameworks aligned with financial services standards. 
+
+Soft Skills & Governance Alignment 
+
+• Strong stakeholder communication and executive reporting 
+
+• Excellent problem-solving and analytical skills 
+
+• Ability to manage cross-functional teams and global stakeholders 
+
+• Strong risk management and compliance awareness 
+
+• Experience working in Agile and hybrid delivery models
