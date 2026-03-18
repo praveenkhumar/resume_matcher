@@ -14,18 +14,34 @@ A Python-based web application that allows users to upload their resume and comp
 
 ## Project Structure
 
-```
+````
 resume_matcher/
 │── app.py                    # Main Streamlit application
 │── utils/
 │   ├── parser.py            # Text extraction from PDFs/DOCX
-│   ├── skill_extractor.py   # NLP skill extraction
-│   ├── matcher.py           # Skill matching and scoring logic
-│── data/
-│   ├── skills_list.json     # Predefined skills database
-│── requirements.txt         # Python dependencies
-│── README.md               # Project documentation
-```
+
+5. **Optional: enable spaCy model downloads**
+
+   The app does not automatically download the `en_core_web_sm` model to avoid
+   large downloads on low-disk systems. If you want the app to attempt to
+   download and install the model automatically at startup, set the
+   environment variable `ALLOW_MODEL_DOWNLOAD=1` before running Streamlit:
+
+   ```bash
+   # Linux / macOS
+   export ALLOW_MODEL_DOWNLOAD=1
+   streamlit run app.py
+
+   # Windows (PowerShell)
+   $env:ALLOW_MODEL_DOWNLOAD = "1"
+   streamlit run app.py
+````
+
+If `ALLOW_MODEL_DOWNLOAD` is not set, the app will run using keyword-only
+matching and will not attempt to download the spaCy language model.
+│── README.md # Project documentation
+
+````
 
 ## Installation
 
@@ -33,7 +49,7 @@ resume_matcher/
 
    ```bash
    cd resume_matcher
-   ```
+````
 
 2. **Create virtual environment**
 

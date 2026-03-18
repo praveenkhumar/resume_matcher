@@ -18,34 +18,46 @@ def setup_models():
     except Exception as e:
         st.warning(f"Could not download NLTK data: {e}")
 
-    # Setup spaCy model with better error handling
-    try:
-        import spacy
-        st.info("🔄 Checking spaCy compatibility...")
-
-        # Try to load the model
+        # Setup spaCy model with better error handling (do NOT auto-download models)
+        # To avoid large downloads on low-disk systems, we do not trigger model
+        # downloads automatically. If you want the app to attempt downloading the
+        # model, set the environment variable `ALLOW_MODEL_DOWNLOAD=1`.
         try:
-            nlp = spacy.load("en_core_web_sm")
-            # Test that it works by processing a simple sentence
-            test_doc = nlp("test")
-            st.success("✅ spaCy model loaded successfully")
-        except (OSError, ImportError):
-            # Model not found, try to download it
-            st.info("⏳ Downloading spaCy language model (this happens once)...")
+            import spacy
+            st.info("🔄 Checking spaCy availability...")
+
             try:
-                subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"], timeout=300)
-                # Try loading again after download
+                # Try to load the small English model if it's already installed
                 nlp = spacy.load("en_core_web_sm")
-                test_doc = nlp("test")
-                st.success("✅ spaCy model downloaded and loaded successfully")
-            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as download_error:
-                st.error(f"❌ Failed to download spaCy model: {download_error}")
-                st.warning("⚠️ The app will work with keyword matching only (no NER)")
-                st.session_state['spacy_broken'] = True
-        except Exception as spacy_error:
-            # spaCy has some internal error (like the REGEX issue with Python 3.14+)
-            st.warning(f"⚠️ spaCy has compatibility issues with this Python version: {spacy_error}")
-            st.info("🔄 Using keyword matching only (spaCy NER disabled)")
+                # Test that it works by processing a simple sentence
+                _ = nlp("test")
+                st.success("✅ spaCy model loaded successfully")
+            except Exception:
+                # If the model isn't installed, do not download it automatically.
+                # Controlled download may be enabled by the user via env var.
+                allow_download = os.environ.get("ALLOW_MODEL_DOWNLOAD", "0") == "1"
+                if allow_download:
+                    st.info("⏳ Attempting to download spaCy language model (user-enabled)...")
+                    try:
+                        subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"], timeout=300)
+                        nlp = spacy.load("en_core_web_sm")
+                        _ = nlp("test")
+                        st.success("✅ spaCy model downloaded and loaded successfully")
+                    except Exception as download_error:
+                        st.error(f"❌ Failed to download spaCy model: {download_error}")
+                        st.warning("⚠️ The app will work with keyword matching only (no NER)")
+                        st.session_state['spacy_broken'] = True
+                else:
+                    st.info("ℹ️ spaCy model not found. To enable automatic download set ALLOW_MODEL_DOWNLOAD=1")
+                    st.session_state['spacy_broken'] = True
+        except ImportError as import_error:
+            # spaCy import failed entirely
+            st.warning(f"⚠️ spaCy import failed: {import_error}")
+            st.info("🔄 App will use keyword matching only")
+            st.session_state['spacy_broken'] = True
+        except Exception as general_error:
+            st.warning(f"⚠️ Unexpected error setting up spaCy: {general_error}")
+            st.info("🔄 Falling back to keyword matching")
             st.session_state['spacy_broken'] = True
     except ImportError as import_error:
         # spaCy import failed entirely (likely Pydantic V1 compatibility issue)
