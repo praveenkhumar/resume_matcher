@@ -6,7 +6,7 @@ A Python-based web application that allows users to upload their resume and comp
 
 - **Resume Upload**: Support for PDF and DOCX formats
 - **Text Extraction**: Uses PyMuPDF/pdfplumber for PDFs and python-docx for DOCX files
-- **Skill Extraction**: NLP-powered skill identification using spaCy
+- **Skill Extraction**: NLP-powered skill identification using Stanza
 - **Job Matching**: Compare resume skills with job requirements
 - **Match Scoring**: Calculate percentage match between resume and job description
 - **Recommendations**: Suggest missing skills to learn
@@ -50,16 +50,12 @@ resume_matcher/
    pip install -r requirements.txt
    ```
 
-4. **Download spaCy language model**
-
-   ```bash
-   python -m spacy download en_core_web_sm
-   ```
-
-5. **Download NLTK data** (if not already downloaded)
+4. **Download NLTK data** (if not already downloaded)
    ```bash
    python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet')"
    ```
+
+   *Note: Stanza models are downloaded automatically on first run*
 
 ## Usage
 
@@ -88,13 +84,13 @@ resume_matcher/
 ## Skill Extraction Methods
 
 - **Keyword Matching**: Matches against a predefined list of skills
-- **NER (Named Entity Recognition)**: Uses spaCy to detect potential skills
+- **NER (Named Entity Recognition)**: Uses Stanza to detect potential skills
 
 ## Tech Stack
 
 - **Python**: Core programming language
 - **Streamlit**: Web application framework
-- **spaCy**: Natural Language Processing
+- **Stanza**: Natural Language Processing (Stanford NLP)
 - **PyMuPDF/pdfplumber**: PDF text extraction
 - **python-docx**: DOCX text extraction
 - **NLTK**: Text preprocessing
