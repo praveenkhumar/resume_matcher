@@ -1,182 +1,135 @@
 # AI Resume Skill Extractor & Job Matcher
 
-A Python-based web application that allows users to upload their resume and compare it with a job description to get a match score, extracted skills, and missing skill recommendations.
+A Python Streamlit app that extracts skills from resumes and compares them to a job description, producing a match score, extracted skills, and missing-skill recommendations.
 
 ## Features
 
-- **Resume Upload**: Support for PDF and DOCX formats
-- **Text Extraction**: Uses PyMuPDF/pdfplumber for PDFs and python-docx for DOCX files
-- **Skill Extraction**: NLP-powered skill identification using spaCy
-- **Job Matching**: Compare resume skills with job requirements
-- **Match Scoring**: Calculate percentage match between resume and job description
-- **Recommendations**: Suggest missing skills to learn
-- **Clean UI**: Built with Streamlit for easy web interface
+- **Resume Upload**: PDF and DOCX support
+- **Text Extraction**: Uses PyMuPDF/pdfplumber and python-docx
+- **Skill Extraction**: Keyword matching and optional NER via spaCy
+- **Job Matching**: Compares resume skills to job requirements
+- **Match Scoring**: Percentage match and missing skill suggestions
+- **Clean UI**: Built with Streamlit for quick usage
 
 ## Project Structure
 
-````
+```
 resume_matcher/
-│── app.py                    # Main Streamlit application
-│── utils/
+├── app.py                    # Main Streamlit application
+├── utils/
 │   ├── parser.py            # Text extraction from PDFs/DOCX
+│   ├── skill_extractor.py   # Skill extraction (keyword + optional NER)
+│   └── matcher.py           # Matching and scoring logic
+├── data/
+│   └── skills_list.json     # Predefined skills database
+├── requirements.txt         # Python dependencies
+└── README.md                # Project documentation
+```
 
-5. **Optional: enable spaCy model downloads**
+## Installation (Local)
 
-   The app does not automatically download the `en_core_web_sm` model to avoid
-   large downloads on low-disk systems. If you want the app to attempt to
-   download and install the model automatically at startup, set the
-   environment variable `ALLOW_MODEL_DOWNLOAD=1` before running Streamlit:
+1. Clone the repository and change into the folder:
 
-   ```bash
-   # Linux / macOS
-   export ALLOW_MODEL_DOWNLOAD=1
-   streamlit run app.py
+```bash
+git clone <repo-url>
+cd resume_matcher
+```
 
-   # Windows (PowerShell)
-   $env:ALLOW_MODEL_DOWNLOAD = "1"
-   streamlit run app.py
-````
+2. Create and activate a virtual environment:
 
-If `ALLOW_MODEL_DOWNLOAD` is not set, the app will run using keyword-only
-matching and will not attempt to download the spaCy language model.
-│── README.md # Project documentation
+```bash
+python -m venv venv
+# Windows (PowerShell)
+venv\Scripts\Activate.ps1
+# Windows (cmd)
+venv\Scripts\activate.bat
+# macOS / Linux
+source venv/bin/activate
+```
 
-````
+3. Install dependencies:
 
-## Installation
+```bash
+pip install -r requirements.txt
+```
 
-1. **Clone or download the project**
+4. Download NLTK data (if not already installed):
 
-   ```bash
-   cd resume_matcher
-````
+```bash
+python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet')"
+```
 
-2. **Create virtual environment**
+## Optional: Enable spaCy Model Auto-Download
 
-   ```bash
-   python -m venv venv
-   source venv/Scripts/activate  # On Windows
-   # or
-   source venv/bin/activate     # On macOS/Linux
-   ```
+To avoid large automatic downloads on low-disk systems, the app does not download the `en_core_web_sm` model by default.
+If you want the app to attempt to download the model at startup, set the environment variable `ALLOW_MODEL_DOWNLOAD=1` before running Streamlit.
 
-3. **Install dependencies**
+Examples:
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+# Linux / macOS
+export ALLOW_MODEL_DOWNLOAD=1
+streamlit run app.py
 
-4. **Download NLTK data** (if not already downloaded)
+# Windows (PowerShell)
+$env:ALLOW_MODEL_DOWNLOAD = "1"
+streamlit run app.py
+```
 
-   ```bash
-   python -c "import nltk; nltk.download('stopwords'); nltk.download('wordnet')"
-   ```
-
-   _Note: Stanza models are downloaded automatically on first run_
+If `ALLOW_MODEL_DOWNLOAD` is not set, the app will run using keyword-only extraction and will not attempt to download the spaCy language model.
 
 ## Usage
 
-1. **Run the application**
-
-   ```bash
-   streamlit run app.py
-   ```
-
-2. **Open your browser** to the URL shown (usually http://localhost:8501)
-
-3. **Upload your resume** (PDF or DOCX format)
-
-4. **Paste job description** in the text area
-
-5. **Click "Analyze Match"** to get results
-
-## How It Works
-
-1. **Text Extraction**: Extracts raw text from uploaded resume files
-2. **Preprocessing**: Cleans text, removes stopwords, applies lemmatization
-3. **Skill Extraction**: Uses keyword matching or NER to identify skills
-4. **Matching Logic**: Compares resume skills with job description skills
-5. **Scoring**: Calculates match percentage and identifies gaps
-
-## Skill Extraction Methods
-
-- **Keyword Matching**: Matches against a predefined list of skills
-- **NER (Named Entity Recognition)**: Uses spaCy to detect potential skills
-
-## Tech Stack
-
-- **Python**: Core programming language
-- **Streamlit**: Web application framework
-- **spaCy**: Natural Language Processing
-- **PyMuPDF/pdfplumber**: PDF text extraction
-- **python-docx**: DOCX text extraction
-- **NLTK**: Text preprocessing
-
-## Deployment
-
-### Streamlit Cloud (Recommended)
-
-1. **Push to GitHub**
-
-   ```bash
-   git add .
-   git commit -m "your commit message"
-   git push origin main
-   ```
-
-2. **Deploy to Streamlit Cloud**
-   - Go to [streamlit.io/cloud](https://streamlit.io/cloud)
-   - Connect your GitHub repository
-   - Select the `main` branch and `app.py` as the main file
-   - Click "Deploy"
-
-3. **First Load Setup**
-   - On first load, the app will automatically download the spaCy model and NLTK data
-   - This may take 1-2 minutes on first deployment
-   - Subsequent loads will be fast (models are cached)
-
-4. **Important: Use Pinned Versions**
-   - The `requirements.txt` includes specific versions to ensure compatibility
-   - Don't remove version pins as they prevent dependency conflicts
-
-### Local Deployment
+Run the app locally:
 
 ```bash
-streamlit run app.py --server.port 8501 --server.address 0.0.0.0
+streamlit run app.py
 ```
 
-### Troubleshooting
+Open the URL shown by Streamlit (usually http://localhost:8501), upload a resume (PDF or DOCX), paste or enter a job description, and click "Analyze Match".
 
-**"unable to infer type for attribute REGEX" error in production:**
+## Behavior & Notes
 
-- This error occurs if spaCy model is not properly installed
-- The app automatically downloads the model on first load
-- Check Streamlit Cloud logs: **Manage app > Logs**
-- Solution: The app should auto-download on next load
+- The app first attempts to import `spaCy` and load the `en_core_web_sm` model if it is already installed.
+- If `spaCy` or the model is not available (or import fails), the app falls back to fast keyword-based matching so the UI and matching still work.
+- The fallback ensures the app remains usable on systems with limited disk space or when model installation fails.
+- If `ALLOW_MODEL_DOWNLOAD=1` is set, the app will try to download the model at startup (this requires available disk space and network access).
 
-**Models not downloading in production:**
+## Troubleshooting
 
-- Ensure `requirements.txt` has the correct versions
-- Our setup runs `setup_models()` on app startup to download missing components
-- If still failing, you can pre-run: `python setup_models.py` before deployment
+- "No module named 'spacy'" or "spaCy model not found":
+  - Install spaCy and the model manually when you have disk space:
+
+    ```bash
+    pip install spacy
+    python -m spacy download en_core_web_sm
+    ```
+
+- Disk space issues during installation:
+  - Clean temporary files, remove large unused files, or run the app without enabling model downloads (default behavior).
+
+- Streamlit Cloud / Python compatibility:
+  - In some cloud environments using Python 3.14+, spaCy may encounter compatibility issues tied to Pydantic V1. If spaCy import fails in the cloud, the app will fall back to keyword matching automatically.
+
+## Deployment (Streamlit Cloud)
+
+1. Push your repo to GitHub.
+2. Create a new app on Streamlit Cloud and point it to the `main` branch and `app.py`.
+3. If you want Streamlit Cloud to download the spaCy model at first run, set the environment variable `ALLOW_MODEL_DOWNLOAD=1` in the app settings. Otherwise, leave it unset and the app will use keyword matching.
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+3. Make changes and test locally
+4. Submit a pull request
 
 ## License
 
-This project is open source and available under the MIT License.
+MIT
 
 ## Future Enhancements
 
-- Add skill importance weighting
-- Implement semantic matching with embeddings
-- Support for more file formats
-- User authentication and resume storage
-- Integration with job boards APIs
-- Advanced analytics and reporting
+- Add an in-app toggle to enable/disable NER per session
+- Add semantic matching with embeddings for better relevance
+- Provide prepackaged Docker images with models included for easy deployment
